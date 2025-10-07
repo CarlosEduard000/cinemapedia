@@ -1,4 +1,4 @@
-import 'package:cinemapedia/config/infrastructure/models/moviedb/credits_response.dart';
+import 'package:cinemapedia/infrastructure/models/moviedb/credits_response.dart';
 import 'package:cinemapedia/domain/entities/actor.dart';
 
 class ActorMapper {
