@@ -1,3 +1,4 @@
+import 'package:cinemapedia/presentation/providers/storage/is_favorite_movie_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
@@ -73,10 +74,7 @@ class _MovieDetails extends StatelessWidget {
               //Imagen
               ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: Image.network(
-                  movie.posterPath, 
-                  width: size.width * 0.3
-                ),
+                child: Image.network(movie.posterPath, width: size.width * 0.3),
               ),
 
               const SizedBox(width: 10),
@@ -154,7 +152,6 @@ class _ActorsByMovie extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 //Actor Photo
                 FadeInRight(
                   child: ClipRRect(
@@ -189,21 +186,43 @@ class _ActorsByMovie extends ConsumerWidget {
   }
 }
 
-class _CustomSliverAppBar extends StatelessWidget {
+class _CustomSliverAppBar extends ConsumerWidget {
   final Movie movie;
 
   const _CustomSliverAppBar({required this.movie});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final size = MediaQuery.of(context).size;
+    final isFavoriteFuture = ref.watch(isFavoriteMovieProvider(movie.id));
 
     return SliverAppBar(
       backgroundColor: Colors.black,
       expandedHeight: size.height * 0.7,
       foregroundColor: Colors.white,
+
+      actions: [
+        IconButton(
+          onPressed: () async{
+            ref.read(favoriteMoviesProvider.notifier)
+            .toggleFavoriteMovie(movie);
+            ref.invalidate(isFavoriteMovieProvider(movie.id));
+          },
+          icon: isFavoriteFuture.when(
+            data: (isFavorite) => isFavorite 
+            ? const Icon(Icons.favorite, color: Colors.red)
+            : const Icon(Icons.favorite_border_outlined), 
+            error: (_, __) => throw Exception('Error al cargar el estado de favoritos'), 
+            loading: () => const CircularProgressIndicator(strokeWidth: 2)
+          ),
+          // icon: const Icon(Icons.favorite_border_outlined),
+          // icon: const Icon(Icons.favorite, color: Colors.red),
+        ),
+      ],
+
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+
         // title: Text(
         //   movie.title,
         //   style: const TextStyle(
@@ -212,44 +231,70 @@ class _CustomSliverAppBar extends StatelessWidget {
         //   ),
         //   textAlign: TextAlign.start,
         // ),
+        
         background: Stack(
           children: [
             SizedBox.expand(
               child: Image.network(
-                movie.posterPath, 
+                movie.posterPath,
                 fit: BoxFit.cover,
                 loadingBuilder: (context, child, loadingProgress) {
-                  if(loadingProgress != null) return SizedBox();
+                  if (loadingProgress != null) return SizedBox();
                   return FadeIn(child: child);
                 },
               ),
             ),
 
-            const SizedBox.expand(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: [0.7, 1.0],
-                    colors: [Colors.transparent, Colors.black87],
-                  ),
-                ),
-              ),
+            // const SizedBox.expand(
+            //   child: DecoratedBox(
+            //     decoration: BoxDecoration(
+            //       gradient: LinearGradient(
+            //         begin: Alignment.topCenter,
+            //         end: Alignment.bottomCenter,
+            //         stops: [0.7, 1.0],
+            //         colors: [Colors.transparent, Colors.black87],
+            //       ),
+            //     ),
+            //   ),
+            // ),
+
+            //Sombra del boton para retroceder
+            _CustomGradient(
+              beginT: Alignment.topLeft,
+              endT: Alignment.bottomRight,
             ),
 
-            const SizedBox.expand(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    stops: [0.0, 0.2],
-                    colors: [Colors.black87, Colors.transparent],
-                  ),
-                ),
-              ),
+            //Sombra del boton de favoritos
+            _CustomGradient(
+              beginT: Alignment.topRight,
+              endT: Alignment.bottomLeft,
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CustomGradient extends StatelessWidget {
+  final AlignmentGeometry beginT;
+  final AlignmentGeometry endT;
+  static final List<double> stopsT = [0.0, 0.2];
+  static final List<Color> colorsT = [Colors.black87, Colors.transparent];
+
+  const _CustomGradient({required this.beginT, required this.endT});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.expand(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: beginT,
+            end: endT,
+            stops: stopsT,
+            colors: colorsT,
+          ),
         ),
       ),
     );
