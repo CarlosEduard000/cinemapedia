@@ -203,17 +203,19 @@ class _CustomSliverAppBar extends ConsumerWidget {
 
       actions: [
         IconButton(
-          onPressed: () async{
-            ref.read(favoriteMoviesProvider.notifier)
-            .toggleFavoriteMovie(movie);
+          onPressed: () async {
+            ref
+                .read(favoriteMoviesProvider.notifier)
+                .toggleFavoriteMovie(movie);
             ref.invalidate(isFavoriteMovieProvider(movie.id));
           },
           icon: isFavoriteFuture.when(
-            data: (isFavorite) => isFavorite 
-            ? const Icon(Icons.favorite, color: Colors.red)
-            : const Icon(Icons.favorite_border_outlined), 
-            error: (_, __) => throw Exception('Error al cargar el estado de favoritos'), 
-            loading: () => const CircularProgressIndicator(strokeWidth: 2)
+            data: (isFavorite) => isFavorite
+                ? const Icon(Icons.favorite, color: Colors.red)
+                : const Icon(Icons.favorite_border_outlined),
+            error: (_, __) =>
+                throw Exception('Error al cargar el estado de favoritos'),
+            loading: () => const CircularProgressIndicator(strokeWidth: 2),
           ),
           // icon: const Icon(Icons.favorite_border_outlined),
           // icon: const Icon(Icons.favorite, color: Colors.red),
@@ -231,7 +233,6 @@ class _CustomSliverAppBar extends ConsumerWidget {
         //   ),
         //   textAlign: TextAlign.start,
         // ),
-        
         background: Stack(
           children: [
             SizedBox.expand(

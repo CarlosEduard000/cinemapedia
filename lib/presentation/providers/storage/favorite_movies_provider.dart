@@ -45,23 +45,12 @@ class StorageMoviesNotifier extends StateNotifier<Map<int, Movie>> {
     final isFavorite = await localStorageRepository.isFavoriteMovie(movie.id);
     await localStorageRepository.toggleFavoriteMovie(movie);
 
-    // if (isFavorite) {
-    //   state.remove(movie.id);
-    //   state = {...state};
-    //   return;
-    // }
-
-    // state = {...state, movie.id: movie};
-    
-     if (isFavorite) {
-      // --- INICIO DE LA CORRECCIÓN ---
-      final newState = {...state}; // 1. Crea una copia del mapa actual.
-      newState.remove(movie.id);   // 2. Elimina el elemento de la COPIA.
-      state = newState;            // 3. Asigna la copia modificada como el nuevo estado.
-      // --- FIN DE LA CORRECCIÓN ---
-    } else {
-      // Esta parte ya estaba bien, porque crea un nuevo mapa.
-      state = {...state, movie.id: movie};
+    if (isFavorite) {
+      state.remove(movie.id);
+      state = {...state};
+      return;
     }
+
+    state = {...state, movie.id: movie};
   }
 }
