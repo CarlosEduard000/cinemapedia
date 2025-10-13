@@ -5,7 +5,6 @@ final appRouter = GoRouter(
   initialLocation: '/home/0',
   routes: [
 
-
     GoRoute(
       path: '/home/:page',
       name: HomeScreen.name,
